@@ -1,21 +1,21 @@
 # vim: ft=systemd
 # .service files are generated from .service.tmpl files
 [Unit]
-Description=bitcoind-testnet
+Description=bitcoind-%i
 
 [Service]
 EnvironmentFile=/etc/environment
 TimeoutStartSec=20m
 ExecStartPre=/bin/sh -c "IMAGE=olalond3/coreos-bitcoind && docker pull $IMAGE"
-ExecStartPre=/bin/sh -c "docker inspect bitcoind-testnet >/dev/null 2>&1 \
-  && docker rm -f bitcoind-testnet || true"
+ExecStartPre=/bin/sh -c "docker inspect bitcoind-%i >/dev/null 2>&1 \
+  && docker rm -f bitcoind-%i || true"
 ExecStart=/bin/sh -c "IMAGE=olalond3/coreos-bitcoind \
-  && docker run --name bitcoind-testnet --rm \
+  && docker run --name bitcoind-%i --rm \
     --net=host \
     -e HOST=${COREOS_PRIVATE_IPV4} \
-    -e NETWORK=testnet \
+    -e NETWORK=%i \
     $IMAGE"
-ExecStop=-/usr/bin/docker stop bitcoind-testnet
+ExecStop=-/usr/bin/docker stop bitcoind-%i
 Restart=on-failure
 RestartSec=5
 
@@ -23,4 +23,4 @@ RestartSec=5
 WantedBy=multi-user.target
 
 [X-Fleet]
-Conflicts=bitcoind-testnet.service
+Conflicts=bitcoind-%i.service

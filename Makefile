@@ -5,15 +5,8 @@ build:
 run:
 	docker run --rm -it olalond3/coreos-bitcoind /bin/bash
 
-unit: bitcoind.service.tmpl
-	@sed -e "s/__NETWORK__/${NETWORK}/g" \
-		./bitcoind.service.tmpl > "./units/bitcoind-${NETWORK}.service"
-
-fleet: units
-	fleetctl stop units/bitcoind-livenet.service
-	-fleetctl destroy units/bitcoind-livenet.service
-	fleetctl start units/bitcoind-livenet.service
-
-units:
-	NETWORK=livenet make unit
-	NETWORK=testnet make unit
+test:
+	fleetctl stop bitcoind@livenet
+	-fleetctl destroy bitcoind@.service
+	fleetctl submit bitcoind@.service
+	fleetctl start bitcoind@livenet
