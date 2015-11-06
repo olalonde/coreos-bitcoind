@@ -10,22 +10,23 @@ random_password=$(randgen 64)
 # configure etcd
 ETCD_PORT=${ETCD_PORT:-4001}
 ETCD="$HOST:$ETCD_PORT"
-ETCD_PATH=${ETCD_PATH:-/bitcoin/$NETWORK}
+ETCD_DEFAULT_PATH="/bitcoin/${NETWORK}"
+ETCD_PATH=${ETCD_PATH:-$ETCD_DEFAULT_PATH}
 ETCD_TTL=${ETCD_TTL:-10}
 
 # default values for env based configuration
-export BITCOIN_RPCUSER="${BITCOIN_RPCUSER:-$random_user}"
-export BITCOIN_RPCPASSWORD="${BITCOIN_RPCPASSWORD:-$random_password}"
+export BITCOIN_CONF_RPCUSER="${BITCOIN_CONF_RPCUSER:-$random_user}"
+export BITCOIN_CONF_RPCPASSWORD="${BITCOIN_CONF_RPCPASSWORD:-$random_password}"
 
 if [ "$NETWORK" = "testnet" ]
 then
-	export BITCOIN_TESTNET=1
-	export BITCOIN_PORT="${BITCOIN_PORT:-18333}"
-	export BITCOIN_RPCPORT="${BITCOIN_RPCPORT:-18332}"
+	export BITCOIN_CONF_TESTNET=1
+	export BITCOIN_CONF_PORT="${BITCOIN_CONF_PORT:-18333}"
+	export BITCOIN_CONF_RPCPORT="${BITCOIN_CONF_RPCPORT:-18332}"
 else
-	export BITCOIN_TESTNET=0
-	export BITCOIN_PORT="${BITCOIN_PORT:-8333}"
-	export BITCOIN_RPCPORT="${BITCOIN_RPCPORT:-8332}"
+	export BITCOIN_CONF_TESTNET=0
+	export BITCOIN_CONF_PORT="${BITCOIN_CONF_PORT:-8333}"
+	export BITCOIN_CONF_RPCPORT="${BITCOIN_CONF_RPCPORT:-8332}"
 fi
 
 # check if etcd is available
@@ -40,12 +41,12 @@ then
 		etcdctl --no-sync -C "$ETCD" mk "$ETCD_PATH/$1" "$2" >/dev/null 2>&1 || true
 	}
 
-	etcd_safe_mkdir "$ETCD_PATH"
-	etcd_set_default rpcuser "$random_user"
-	etcd_set_default rpcpassword "$random_password"
-	etcd_set_default testnet "$BITCOIN_TESTNET"
-	etcd_set_default port "$BITCOIN_PORT"
-	etcd_set_default rpcport "$BITCOIN_RPCPORT"
+	etcd_safe_mkdir "${ETCD_PATH}/conf"
+	etcd_set_default conf/rpcuser "$random_user"
+	etcd_set_default conf/rpcpassword "$random_password"
+	etcd_set_default conf/testnet "$BITCOIN_CONF_TESTNET"
+	etcd_set_default conf/port "$BITCOIN_CONF_PORT"
+	etcd_set_default conf/rpcport "$BITCOIN_CONF_RPCPORT"
 
 	# wait for confd to run once and install initial templates
 	PREFIX="${ETCD_PATH}/"
@@ -53,20 +54,17 @@ then
 		echo "Waiting for confd to write bitcoin.conf..."
 		sleep $((ETCD_TTL/2)) # sleep for half the TTL
 	done
-
 	# spawn bitcoind in background
-	echo "Starting Bitcoind..."
-	bitcoind-service start || exit 1
-
 	# spawn confd in the background to update services based on etcd changes
-	confd -node "$ETCD" -prefix "$PREFIX" -reload_cmd="bitcoind-service restart" &
+	confd -node "$ETCD" -prefix "$PREFIX" &
 	# CONFD_PID=$!
 else
-	echo "rpcuser=$BITCOIN_RPCUSER"
-	echo "rpcpassword=$BITCOIN_RPCPASSWORD"
+	echo "rpcuser=$BITCOIN_CONF_RPCUSER"
+	echo "rpcpassword=$BITCOIN_CONF_RPCPASSWORD"
 	# Generate config from environment variables
 	confd -onetime -backend env -prefix "/bitcoin/"
-	bitcoind-service start || exit 1
 fi
 
-wait
+echo "Starting Bitcoind..."
+bitcoind-service start || exit 1
+bitcoind-service logs

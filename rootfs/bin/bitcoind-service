@@ -6,6 +6,11 @@ pidfile="/var/run/bitcoind.pid"
 user=root
 group=root
 daemon=/opt/bitcoin/bin/bitcoind
+logfile="${datadir}/debug.log"
+
+if [ "$NETWORK" = "testnet" ]; then
+  logfile="${datadir}/testnet3/debug.log"
+fi
 
 function start {
   start-stop-daemon --start \
@@ -13,10 +18,10 @@ function start {
     --user ${user}:${group} \
     --exec ${daemon} \
     -- \
+      -daemon=1 \
       -conf=${config} \
       -datadir=${datadir} \
-      -printtoconsole \
-      -pid=${pidfile} &
+      -pid=${pidfile}
 }
 
 function stop {
@@ -27,6 +32,10 @@ function stop {
 
 function restart {
   stop && start
+}
+
+function logs {
+  tail -f "$logfile"
 }
 
 $1
