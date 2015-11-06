@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+# see https://github.com/alpinelinux/aports/tree/master/testing/bitcoin
+
+set -eof pipefail
+
+# build path
+export BUILD_PATH=/tmp/build
+
+# bitcoind installation directory
+export PREFIX=/opt/bitcoin
+
+mkdir -p "$PREFIX"
+
+mkdir "$BUILD_PATH"
+cd "$BUILD_PATH"
+
+# install required packages to build
+apk add --update-cache \
+  build-base \
+  linux-headers \
+  autoconf \
+  automake \
+  libtool \
+  boost-dev \
+  openssl-dev \
+  db-dev \
+  protobuf-dev \
+  chrpath
+
+get_src 6b238ab46bb10c7a83237dfd69b09c95f08043bbe0b478f9c256b9536186b8d2 "https://github.com/bitcoin/bitcoin/archive/v${BITCOIN_VERSION}.tar.gz"
+
+# build bitcoin
+cd "${BUILD_PATH}/bitcoin-${BITCOIN_VERSION}"
+
+./autogen.sh
+./configure \
+  --prefix="$PREFIX" \
+  --mandir=/usr/share/man \
+  --disable-tests \
+  --enable-hardening \
+  --disable-ccache \
+  --with-gui=no \
+  --with-utils \
+  --with-incompatible-bdb \
+  --disable-ccache \
+  --disable-static \
+  || return 1
+make || return 1
+
+make install
+
+rm -rf "$BUILD_PATH"
+apk del --purge \
+  build-base \
+  linux-headers \
+  autoconf \
+  automake \
+  libtool \
+  boost-dev \
+  openssl-dev \
+  db-dev \
+  protobuf-dev \
+  chrpath
+
+rm -rf /var/cache/apk/*

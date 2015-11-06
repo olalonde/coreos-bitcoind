@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+config="/etc/bitcoin.conf"
+## supercedes datadir set in $config ##
+datadir="/bitcoin"
+pidfile="/var/run/bitcoind.pid"
+user=root
+group=root
+daemon=/opt/bitcoin/bin/bitcoind
+
+function start {
+  start-stop-daemon --start \
+    --pidfile ${pidfile} \
+    --user ${user}:${group} \
+    --exec ${daemon} \
+    -- \
+      -conf=${config} \
+      -datadir=${datadir} \
+      -printtoconsole \
+      -pid=${pidfile} &
+}
+
+function stop {
+  start-stop-daemon --stop \
+    --pidfile ${pidfile} \
+    --exec ${daemon}
+}
+
+function restart {
+  stop && start
+}
+
+$1
