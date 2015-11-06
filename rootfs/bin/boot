@@ -29,6 +29,7 @@ else
 fi
 
 # check if etcd is available
+echo "Attempting to connect to etcd: ${ETCD}"
 if etcdctl --no-sync -C "$ETCD" ls >/dev/null 2>&1
 then
 	function etcd_safe_mkdir {

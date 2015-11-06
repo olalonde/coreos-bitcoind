@@ -9,6 +9,7 @@ TimeoutStartSec=20m
 ExecStartPre=/bin/sh -c "IMAGE=olalond3/coreos-bitcoind && docker pull $IMAGE"
 ExecStartPre=/bin/sh -c "docker inspect bitcoind-livenet >/dev/null 2>&1 \
   && docker rm -f bitcoind-livenet || true"
+ExecStartPre=/bin/echo "$COREOS_PRIVATE_IPV4"
 ExecStart=/bin/sh -c "IMAGE=olalond3/coreos-bitcoind \
   && docker run --name bitcoind-livenet --rm \
     --net=host \

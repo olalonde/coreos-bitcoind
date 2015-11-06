@@ -13,7 +13,6 @@ fleet: units
 	fleetctl stop units/bitcoind-livenet.service
 	-fleetctl destroy units/bitcoind-livenet.service
 	fleetctl start units/bitcoind-livenet.service
-	fleetctl journal -f bitcoind-livenet
 
 units:
 	NETWORK=livenet make unit

@@ -20,6 +20,15 @@ RUN apk add --update-cache \
 RUN curl -sSL -o "/usr/local/bin/confd" "https://github.com/kelseyhightower/confd/releases/download/v0.9.0/confd-0.9.0-linux-amd64" \
   && chmod +x /usr/local/bin/confd
 
+# install etcdctl
+RUN curl -sSL -o "etcd.tar.gz" \
+  "https://github.com/coreos/etcd/releases/download/v2.2.1/etcd-v2.2.1-linux-amd64.tar.gz" \
+  && tar xzvf etcd.tar.gz \
+  && mv ./etcd-v2.2.1-linux-amd64/etcdctl /usr/local/bin/etcdctl \
+  && chmod +x /usr/local/bin/etcdctl \
+  && rm ./etcd.tar.gz \
+  && rm -rf ./etcd-v2.2.1-linux-amd64
+
 COPY rootfs /
 
 # compile bitcoind from source
