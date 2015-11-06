@@ -67,3 +67,5 @@ else
 	confd -onetime -backend env -prefix "/bitcoin/"
 	bitcoind-service start || exit 1
 fi
+
+wait

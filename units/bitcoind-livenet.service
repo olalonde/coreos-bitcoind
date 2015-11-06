@@ -1,0 +1,26 @@
+# vim: ft=systemd
+# .service files are generated from .service.tmpl files
+[Unit]
+Description=bitcoind-livenet
+
+[Service]
+EnvironmentFile=/etc/environment
+TimeoutStartSec=20m
+ExecStartPre=/bin/sh -c "IMAGE=olalond3/coreos-bitcoind && docker pull $IMAGE"
+ExecStartPre=/bin/sh -c "docker inspect bitcoind-livenet >/dev/null 2>&1 \
+  && docker rm -f bitcoind-livenet || true"
+ExecStart=/bin/sh -c "IMAGE=olalond3/coreos-bitcoind \
+  && docker run --name bitcoind-livenet --rm \
+    --net=host \
+    -e HOST=$COREOS_PRIVATE_IPV4 \
+    -e NETWORK=livenet \
+    $IMAGE"
+ExecStop=-/usr/bin/docker stop bitcoind-livenet
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
+[X-Fleet]
+Conflicts=bitcoind-livenet.service
