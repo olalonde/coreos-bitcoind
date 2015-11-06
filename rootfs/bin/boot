@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# first arg: testnet, livenet or regtest
+# use this arg to chose which prefix to use
+# for confd
+
+# first use confd with environment variable
+# so that we can use docker-compose env variables
+
+confd -onetime -backend env
+
+# then use etcd in case etcd is available
+
+# etc.
+
+bitcoind --version
+
+cat /root/.bitcoin/bitcoin.conf

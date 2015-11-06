@@ -1,0 +1,7 @@
+[template]
+src = "bitcoin.conf.tmpl"
+dest = "/root/.bitcoin/bitcoin.conf"
+keys = [
+    "/bitcoind/rpcport",
+    "/bitcoind/rpcuser",
+]
