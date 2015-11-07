@@ -1,0 +1,78 @@
+[Unit]
+Description=bitcoind-ebs
+BindsTo=bitcoind@%i.service
+Before=bitcoind@%i.service
+
+[Service]
+EnvironmentFile=/etc/environment
+Environment="IMAGE=olalond3/ebs:master"
+Environment="NAME=bitcoind-ebs-%i"
+Environment="MOUNT_PATH=/data/bitcoin/%i"
+TimeoutStartSec=20m
+ExecStartPre=/bin/sh -c "docker pull $IMAGE"
+ExecStartPre=/bin/sh -c "docker inspect $NAME >/dev/null 2>&1 \
+  && docker rm -f $NAME || true"
+
+ExecStartPre=/bin/sh -c "etcdctl get /bitcoin/%i/ebs/volume_id || \
+  (echo /bitcoin/%i/ebs/volume_id not set && exit 1)"
+ExecStartPre=/bin/bash -c "\
+set -x; \
+echo finding next unused device; \
+for i in {j..z}; do [ ! -b \"/dev/xvd$i\" ] && break; done; \
+aws_device=/dev/sd$i; \
+actual_device=/dev/xvd$i; \
+echo $actual_device is not used; \
+etcdctl set /bitcoin/%i/ebs/device $i; \
+echo attaching $actual_device; \
+docker run \
+  --rm \
+  --name $NAME \
+  --env AWS_ACCESS_KEY_ID=$(etcdctl get /aws/key) \
+  --env AWS_SECRET_ACCESS_KEY=$(etcdctl get /aws/secret) \
+  --env AWS_DEFAULT_REGION=$(etcdctl get /aws/region ) \
+  --env VOLUME_ID=$(etcdctl get /bitcoin/%i/ebs/volume_id) \
+  --env DEVICE=$aws_device \
+  $IMAGE \
+  attach || exit $?; \
+echo device $aws_device attached; \
+"
+ExecStart=/usr/bin/tail -f /dev/null
+ExecStartPost=/bin/bash -c "\
+set -x; \
+mkdir -p $MOUNT_PATH ; \
+i=$(etcdctl get /bitcoin/%i/ebs/device); \
+actual_device=/dev/xvd$i; \
+echo waiting for device; \
+while ! ls $actual_device 2> /dev/null; do sleep 1; done; \
+mount $actual_device $MOUNT_PATH ; \
+"
+
+ExecStop=/bin/bash -c "\
+set -x; \
+i=$(etcdctl get /bitcoin/%i/ebs/device); \
+aws_device=/dev/sd$i; \
+actual_device=/dev/xvd$i; \
+echo detaching $actual_device; \
+umount $MOUNT_PATH; \
+docker run \
+  --rm \
+  --name ${NAME} \
+  --env AWS_ACCESS_KEY_ID=$(etcdctl get /aws/key) \
+  --env AWS_SECRET_ACCESS_KEY=$(etcdctl get /aws/secret) \
+  --env AWS_DEFAULT_REGION=$(etcdctl get /aws/region) \
+  --env VOLUME_ID=$(etcdctl get /bitcoin/%i/ebs/volume_id) \
+  --env DEVICE=$aws_device \
+  $IMAGE \
+  detach || exit $?; \
+etcdctl rm /bitcoin/%i/ebs/device; \
+"
+# Restart=on-failure
+# RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
+[X-Fleet]
+MachineOf=bitcoind@%i.service
+# MachineID=56ddb55556734ecf9ad91dea154ed058
+# Conflicts=bitcoind-ebs@%i.service

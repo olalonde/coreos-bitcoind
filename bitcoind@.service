@@ -1,26 +1,36 @@
-# vim: ft=systemd
-# .service files are generated from .service.tmpl files
 [Unit]
-Description=bitcoind-%i
+Description=bitcoind
 
 [Service]
 EnvironmentFile=/etc/environment
+Environment="IMAGE=olalond3/coreos-bitcoind:master"
+Environment="NAME=bitcoind-%i"
+Environment="MOUNT_PATH=/data/bitcoin/%i"
 TimeoutStartSec=20m
-ExecStartPre=/bin/sh -c "IMAGE=olalond3/coreos-bitcoind && docker pull $IMAGE"
-ExecStartPre=/bin/sh -c "docker inspect bitcoind-%i >/dev/null 2>&1 \
-  && docker rm -f bitcoind-%i || true"
-ExecStart=/bin/sh -c "IMAGE=olalond3/coreos-bitcoind \
-  && docker run --name bitcoind-%i --rm \
-    --net=host \
-    -e HOST=${COREOS_PRIVATE_IPV4} \
-    -e NETWORK=%i \
-    $IMAGE"
-ExecStop=-/usr/bin/docker stop bitcoind-%i
-Restart=on-failure
-RestartSec=5
+ExecStartPre=/bin/sh -c "docker pull $IMAGE"
+ExecStartPre=/bin/sh -c "docker inspect $NAME >/dev/null 2>&1 \
+  && docker rm -f $NAME || true"
+# Mounts /data/bitcoin/%i to /bitcoin (datadir) if it exists
+ExecStart=/bin/bash -c "\
+set -x; \
+[ -e \"$MOUNT_PATH\" ] && EXTRA_FLAGS=\"-v ${MOUNT_PATH}:/bitcoin\"; \
+docker run \
+  --name $NAME \
+  --rm \
+  --net=host \
+  -e HOST=${COREOS_PRIVATE_IPV4} \
+  -e NETWORK=%i \
+  $EXTRA_FLAGS \
+  $IMAGE \
+"
+ExecStartPost=/bin/bash -c "etcdctl set /bitcoin/%i/host $COREOS_PRIVATE_IPV4"
+ExecStop=-/usr/bin/docker stop $NAME
+ExecStopPost=-/bin/bash -c "etcdctl rm /bitcoin/%i/host"
+# Restart=on-failure
+# RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
 
 [X-Fleet]
-Conflicts=bitcoind-%i.service
+MachineID=56ddb55556734ecf9ad91dea154ed058

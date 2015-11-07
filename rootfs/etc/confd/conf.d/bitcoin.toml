@@ -5,3 +5,4 @@ mode = "0600"
 keys = [
   "conf",
 ]
+reload_cmd = "bitcoind-service restart"
