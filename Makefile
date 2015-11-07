@@ -16,9 +16,10 @@ fleet-load:
 	fleetctl load bitcoind-ebs@livenet
 
 fleet-start:
-	fleetctl start bitcoind-ebs@livenet bitcoind@livenet
+	fleetctl start bitcoind-ebs@livenet
+	fleetctl start bitcoind@livenet
 
 fleet-stop:
-	fleetctl start bitcoind@livenet
+	fleetctl stop bitcoind@livenet
 
 test: fleet-submit fleet-load fleet-start

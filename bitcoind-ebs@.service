@@ -1,7 +1,7 @@
 [Unit]
 Description=bitcoind-ebs
-BindsTo=bitcoind@%i.service
-Before=bitcoind@%i.service
+# BindsTo=bitcoind@%i.service
+# Before=bitcoind@%i.service
 
 [Service]
 EnvironmentFile=/etc/environment
@@ -73,6 +73,6 @@ etcdctl rm /bitcoin/%i/ebs/device; \
 WantedBy=multi-user.target
 
 [X-Fleet]
-MachineOf=bitcoind@%i.service
-# MachineID=56ddb55556734ecf9ad91dea154ed058
+#MachineOf=bitcoind@%i.service
+MachineID=56ddb55556734ecf9ad91dea154ed058
 # Conflicts=bitcoind-ebs@%i.service

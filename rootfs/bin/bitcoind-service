@@ -36,6 +36,7 @@ function restart {
 
 function logs {
   # make sure file exists
+  echo tail -f $logfile
   mkdir -p "$(dirname "$logfile")"
   touch "$logfile"
   tail -f "$logfile"
