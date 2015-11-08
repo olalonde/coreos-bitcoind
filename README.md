@@ -16,14 +16,13 @@ to my knowledge).
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**
 
-- [coreos-bitcoind](#coreos-bitcoind)
-  - [Standalone usage](#standalone-usage)
-    - [Configuration](#configuration)
-    - [Data persistence](#data-persistence)
-  - [CoreOS usage](#coreos-usage)
-    - [Configuration](#configuration-1)
-    - [Data persistence](#data-persistence-1)
-    - [EBS](#ebs)
+- [Standalone usage](#standalone-usage)
+  - [Configuration](#configuration)
+  - [Data persistence](#data-persistence)
+- [CoreOS usage](#coreos-usage)
+  - [Configuration](#configuration-1)
+  - [Data persistence](#data-persistence-1)
+  - [Data persistence using AWS EBS volume](#data-persistence-using-aws-ebs-volume)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
