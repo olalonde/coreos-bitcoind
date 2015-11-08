@@ -31,7 +31,8 @@ function stop {
 }
 
 function restart {
-  stop && start
+  stop
+  start
 }
 
 function logs {
