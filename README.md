@@ -204,7 +204,7 @@ Set the following configuration keys:
 ```bash
 etcdctl set /aws/key <aws key id>
 etcdctl set /aws/secret <aws key secret>
-etcdctl set /aws/region <aws region of ebs volume is>
+etcdctl set /aws/region <aws region of ebs volume>
 etcdctl set /bitcoin/<instance>/ebs/volume_id <ebs volume id>
 ```
 
