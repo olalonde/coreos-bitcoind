@@ -1,5 +1,5 @@
 [Unit]
-Description=bitcoind
+Description=bitcoind runs bitcoind server using etcd for configuration
 
 [Service]
 EnvironmentFile=/etc/environment

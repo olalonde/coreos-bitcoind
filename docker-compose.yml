@@ -1,0 +1,5 @@
+bitcoind:
+  image: olalond3/coreos-bitcoind
+  ports:
+    - 8333:8333
+    - 8332:8332

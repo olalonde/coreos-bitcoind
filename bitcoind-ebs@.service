@@ -1,5 +1,5 @@
 [Unit]
-Description=bitcoind-ebs
+Description=bitcoind-ebs mounts an EBS volume to /data/bitcoin/%i
 # BindsTo=bitcoind@%i.service
 # Before=bitcoind@%i.service
 
