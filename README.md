@@ -120,9 +120,8 @@ configuration file is `/etc/bitcoind.conf`.
 
 ## CoreOS usage
 
-Important: in both unit files, set the MachineID directive to the ID of
-the machine you want your services to be scheduled on. TODO: use BindsTo
-and Before directives instead.
+**Note**: remove or modify the `MachineMetadata` directive from
+[bitcoind@.service](./bitcoind@.service) if it doesn't apply to you.
 
 ```
 fleetctl start bitcoind@<instance>
@@ -210,13 +209,14 @@ etcdctl set /aws/region <aws region of ebs volume is>
 etcdctl set /bitcoin/<instance>/ebs/volume_id <ebs volume id>
 ```
 
-bitcoind-ebs must be launched **before** bitcoind and must be scheduled
-on the same machine. TODO: use BindTo and Before directives so that this
-is handled automatically (instead of MachineID).
+Submit and **load** both units:
+
+```bash
+fleetctl load bitcoind@livenet bitcoind-ebs@livenet
+```
+
+Start bitcoind (this will automatically start bitcoind-ebs):
 
 ```
-fleetctl start bitcoind-ebs@livenet
-# wait for EBS volume to be mounted
-# fleetctl journal -f bitcoind-ebs@livenet
 fleetctl start bitcoind@livenet
 ```

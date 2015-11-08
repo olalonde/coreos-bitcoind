@@ -56,7 +56,7 @@ then
 	done
 	# spawn bitcoind in background
 	# spawn confd in the background to update services based on etcd changes
-	confd -node "$ETCD" -prefix "$PREFIX" &
+	confd -reload_cmd="bitcoind-service restart" -node "$ETCD" -prefix "$PREFIX" &
 	# CONFD_PID=$!
 else
 	echo "rpcuser=$BITCOIN_CONF_RPCUSER"

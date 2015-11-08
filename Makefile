@@ -1,5 +1,7 @@
 .PHONY: build run test
 
+pull:
+	docker pull olalond3/coreos-bitcoind
 build:
 	docker build -t olalond3/coreos-bitcoind .
 run:

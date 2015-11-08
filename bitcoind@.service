@@ -1,9 +1,11 @@
 [Unit]
 Description=bitcoind runs bitcoind server using etcd for configuration
+# optional wants
+Wants=bitcoind-ebs@%i.service
 
 [Service]
 EnvironmentFile=/etc/environment
-Environment="IMAGE=olalond3/coreos-bitcoind:master"
+Environment="IMAGE=olalond3/coreos-bitcoind"
 Environment="NAME=bitcoind-%i"
 Environment="MOUNT_PATH=/data/bitcoin/%i"
 TimeoutStartSec=20m
@@ -33,4 +35,4 @@ ExecStopPost=-/bin/bash -c "etcdctl rm /bitcoin/%i/host"
 WantedBy=multi-user.target
 
 [X-Fleet]
-MachineID=56ddb55556734ecf9ad91dea154ed058
+MachineMetadata=dataPlane=false

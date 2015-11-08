@@ -1,8 +1,6 @@
 [template]
 src = "bitcoin.conf.tmpl"
 dest = "/etc/bitcoin.conf"
-mode = "0600"
 keys = [
   "conf",
 ]
-reload_cmd = "bitcoind-service restart"
