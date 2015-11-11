@@ -63,7 +63,7 @@ docker-compose run bitcoind /bin/bash
 ### Configuration
 
 The container is entirely configurable through environment variables
-that follow this pattern `BITCOIND_CONF_ARG=value`, where `ARG` is one
+that follow this pattern `BITCOIN_CONF_ARG=value`, where `ARG` is one
 of the bitcoind configuration flags.
 
 See `docker run --rm -t olalond3/coreos-bitcoind bitcoind --help` for a list.
@@ -78,9 +78,9 @@ docker run \
   --name=bitcoind \
   -p 18333:18333 \
   -p 18332:18332 \
-  -e BITCOIND_CONF_SERVER=1 \
-  -e BITCOIND_CONF_TESTNET=1 \
-  -e BITCOIND_CONF_RPCUSER=someuser \
+  -e BITCOIN_CONF_SERVER=1 \
+  -e BITCOIN_CONF_TESTNET=1 \
+  -e BITCOIN_CONF_RPCUSER=someuser \
   olalond3/coreos-bitcoind
 
 # view automatically generated rpcpassword or user
