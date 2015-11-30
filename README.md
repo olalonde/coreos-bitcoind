@@ -56,9 +56,25 @@ bash-4.3# bitcoind --help
 
 Or with docker-compose:
 
-```
+```bash
 docker-compose run bitcoind /bin/bash
 ```
+
+To use bitcoin-cli on a running bitcoind container, use the following
+command:
+
+```bash
+docker exec -it <container name> bitcoin-cli -conf=/etc/bitcoind.conf <command>
+```
+
+For example, to get a new deposit address:
+
+```
+docker exec -it bitcoind bitcoin-cli -conf=/etc/bitcoin.conf getnewaddress
+```
+
+For more commands, see the [Bitcoin Developer
+Reference](https://bitcoin.org/en/developer-reference#rpc-quick-reference).
 
 ### Configuration
 
