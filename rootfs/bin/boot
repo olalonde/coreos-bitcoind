@@ -7,6 +7,13 @@ randgen() {
 random_user=$(randgen 32)
 random_password=$(randgen 64)
 
+NETWORK="${NETWORK:-"livenet"}"
+
+if [ "$BITCOIN_CONF_TESTNET" = "1" ]
+then
+  NETWORK="${NETWORK:-"testnet"}"
+fi
+
 # configure etcd
 ETCD_PORT=${ETCD_PORT:-4001}
 ETCD="$HOST:$ETCD_PORT"
