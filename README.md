@@ -224,6 +224,15 @@ etcdctl set /aws/region <aws region of ebs volume>
 etcdctl set /bitcoin/<instance>/ebs/volume_id <ebs volume id>
 ```
 
+The aws key must have the permission to perform the following actions:
+
+- `aws ec2 describe-volumes`
+- `aws ec2 attach-volume`
+- `aws ec2 detach-volume`
+
+`/aws/region` must be a region name (e.g. `us-east-1`), not an
+availability zone (e.g. `us-east-1a`).
+
 Submit and **load** both units:
 
 ```bash
@@ -233,5 +242,13 @@ fleetctl load bitcoind@livenet bitcoind-ebs@livenet
 Start bitcoind (this will automatically start bitcoind-ebs):
 
 ```
+fleetctl start bitcoind@livenet
+```
+
+To restart the service, only stop and start `bitcoind@livenet`, `bitcoind-ebs`
+will stop/start by itself. For example:
+
+```
+fleetctl stop bitcoind@livenet
 fleetctl start bitcoind@livenet
 ```
